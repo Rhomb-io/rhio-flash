@@ -32,33 +32,48 @@
 class RhioFlash {
  public:
   /***************************************************************************
-   *                          Constructor
+   *                                 Constructor
    **************************************************************************/
 
   RhioFlash();
   RhioFlash(uint8_t slaveSelectPin);  // Only if you don't use halley
 
   /***************************************************************************
-   *                          Initialization
+   *                               Initialization
    **************************************************************************/
 
   void beginMemory();
 
   /***************************************************************************
-   *                      Device ID and manufacter ID
+   *                           Device ID and manufacter ID
    **************************************************************************/
 
   uint32_t readManufacterAndDeviceID();
-  uint8_t readDeviceID();
+  uint16_t readDeviceID();
 
   /***************************************************************************
-   *                          Status registers
+   *                             Security functions
    **************************************************************************/
 
-  // Las funciones tanto de lectura como de escritura
+  void setOtpSecurity(uint8_t *value, uint32_t address, uint8_t size);
+  void readOtpSecurity(uint8_t *value, uint32_t address, uint8_t size);
 
   /***************************************************************************
-   *                       Enable/Disable write
+   *                             Status registers
+   **************************************************************************/
+
+  void setBlockProtectionLocked(uint8_t Status);
+  void setBlockProtection(uint8_t Status);
+  void setReset(uint8_t Status);
+  uint8_t getBlockProtectionLocked();
+  uint8_t getError();
+  uint8_t getWriteProtect();
+  uint8_t getBlockProtection();
+  uint8_t getWriteEnable();
+  uint8_t getBusyStatus();
+
+  /***************************************************************************
+   *                           Enable/Disable write
    **************************************************************************/
 
   void writeEnable();
@@ -69,19 +84,34 @@ class RhioFlash {
    **************************************************************************/
 
   void chipErase();
-  // Tres funciones mas de borrar
+  void blockErase4KB(uint32_t address);
+  void blockErase32KB(uint32_t address);
+  void pageErase(uint8_t page);
 
   /***************************************************************************
    *                            Write functions
    **************************************************************************/
 
   void writeByte(uint8_t value, uint32_t address);
+  void writePage(uint8_t *value, uint32_t address, uint8_t size);
 
   /***************************************************************************
    *                            Read functions
    **************************************************************************/
 
   uint8_t readByte(uint32_t address);
+  void readArray(uint8_t *value, uint32_t address, uint8_t size);
+  // void readDualArray();
+
+  /***************************************************************************
+   *                            Other functions
+   **************************************************************************/
+
+  void resetOperation();
+  void deepPowerDown();
+  void resumeFromDeepPowerDown();  // Resume from deep power down
+  void ultraDeepPowerDown();
+  void exitultraDeepPowerDown();
 
  private:
 #ifdef Halley
@@ -110,10 +140,13 @@ class RhioFlash {
     ULTRA_DEEP_POWER_DOWN = 0x79,
   } ComandFlash;
   ComandFlash comandflash;
-
   uint8_t _slaveSelectPin;
 
   void chipSelect();
   void chipUnselect();
+  uint8_t readStatusRegister(uint8_t bits);
+  void writeStatusRegister(uint8_t bits, ComandFlash comandflash,
+                           uint8_t Status);
   void writeComand(ComandFlash comandflash);
+  void setComandAndAddress(uint32_t address, ComandFlash comandflash);
 };
