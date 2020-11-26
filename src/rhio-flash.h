@@ -22,7 +22,7 @@
 #endif
 
 #ifdef Halley
-#include "FXL6408.h"
+#include "rhio-ioexpander.h"
 #endif
 
 #if defined(ARDUINO_SAMD_ZERO)
@@ -115,7 +115,7 @@ class RhioFlash {
 
  private:
 #ifdef Halley
-  FXL6408 ioex;
+  RhioIOExpander ioex;
 #endif
   typedef enum _ComandFlash {
     READ_ARRAY = 0x0B,
