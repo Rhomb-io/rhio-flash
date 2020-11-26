@@ -27,12 +27,17 @@ void setup() {
   DEBUG.println(jedecid3, HEX);
   DEBUG.print("Extended: ");
   DEBUG.println(jedecid4, HEX);
-  FLASH.chipErase();
-  FLASH.writeEnable();
 
-  FLASH.writeByte(0xE3, 0);
+  FLASH.erase();
+
+  // While memory is busy, it is waiting
+  while (FLASH.getBusyStatus() == 1) {
+  }
+
+  FLASH.write(0xE3, 0);
+
   DEBUG.print("Reading address 0: ");  // 11100011
-  DEBUG.println(FLASH.readByte(0), BIN);
+  DEBUG.println(FLASH.read(0), BIN);
 }
 
 void loop() {
