@@ -13,14 +13,6 @@
 
 #include <rhio-flash.h>
 
-/***************************************************************************
- *                              REVISAR
- *
- * Añadir el writeEnable a las funciones que se necesiten para no tenerlo que
- *  hacer siempre en el main con la mayoria de funciones
- *
- **************************************************************************/
-
 //*******Constructor*******
 
 RhioFlash::RhioFlash(){};
@@ -83,6 +75,7 @@ uint16_t RhioFlash::readDeviceID() {
 
 void RhioFlash::setOtpSecurity(uint8_t *value, uint32_t address, uint8_t size) {
   // Se necesita habilitar la escritura
+  writeEnable();
   chipSelect();
   setComandAndAddress(address, PROGRAM_OTP);
   for (auto i = 0; i < size; i++) {
@@ -106,14 +99,21 @@ void RhioFlash::readOtpSecurity(uint8_t *value, uint32_t address,
 //******Status Register******
 
 void RhioFlash::setBlockProtectionLocked(uint8_t Status) {
+  writeEnable();
   writeStatusRegister(7, WRITE_STATUS1, Status);
+  delay(10);
 }
 void RhioFlash::setBlockProtection(uint8_t Status) {
+  writeEnable();
   writeStatusRegister(2, WRITE_STATUS1, Status);
+  delay(10);
 }
 void RhioFlash::setReset(uint8_t Status) {
+  writeEnable();
   writeStatusRegister(2, WRITE_STATUS2, Status);
+  delay(10);
 }
+
 uint8_t RhioFlash::getBlockProtectionLocked() { return readStatusRegister(7); }
 uint8_t RhioFlash::getError() { return readStatusRegister(5); }
 uint8_t RhioFlash::getWriteProtect() { return readStatusRegister(4); }
@@ -129,21 +129,27 @@ void RhioFlash::writeDisable() { writeComand(WRITE_DISABLE); }
 
 //******Erase functions******
 
-void RhioFlash::chipErase() { writeComand(CHIP_ERASE); }
+void RhioFlash::erase() {
+  writeEnable();
+  writeComand(CHIP_ERASE);
+}
 
 void RhioFlash::blockErase4KB(uint32_t address) {
+  writeEnable();
   chipSelect();
   setComandAndAddress(address, BLOCK_ERASE_4KB);
   chipUnselect();
 }
 
 void RhioFlash::blockErase32KB(uint32_t address) {
+  writeEnable();
   chipSelect();
   setComandAndAddress(address, BLOCK_ERASE_32KB);
   chipUnselect();
 }
 
 void RhioFlash::pageErase(uint8_t page) {
+  writeEnable();
   ComandFlash comandflash = PAGE_ERASE;
   chipSelect();
   SPI.transfer(comandflash);
@@ -155,14 +161,16 @@ void RhioFlash::pageErase(uint8_t page) {
 
 //******Write functions******
 
-void RhioFlash::writeByte(uint8_t value, uint32_t address) {
+void RhioFlash::write(uint8_t value, uint32_t address) {
+  writeEnable();
   chipSelect();
   setComandAndAddress(address, PAGE_PROGRAM);
   SPI.transfer(value);
   chipUnselect();
 }
 
-void RhioFlash::writePage(uint8_t *value, uint32_t address, uint8_t size) {
+void RhioFlash::write(uint8_t *value, uint32_t address, uint8_t size) {
+  writeEnable();
   chipSelect();
   setComandAndAddress(address, PAGE_PROGRAM);
   for (auto i = 0; i < size; i++) {
@@ -173,7 +181,7 @@ void RhioFlash::writePage(uint8_t *value, uint32_t address, uint8_t size) {
 
 //******Read functions******
 
-uint8_t RhioFlash::readByte(uint32_t address) {
+uint8_t RhioFlash::read(uint32_t address) {
   uint8_t value;
   chipSelect();
   setComandAndAddress(address, READ_ARRAY);
@@ -183,7 +191,7 @@ uint8_t RhioFlash::readByte(uint32_t address) {
   return value;
 }
 
-void RhioFlash::readArray(uint8_t *value, uint32_t address, uint8_t size) {
+void RhioFlash::read(uint8_t *value, uint32_t address, uint8_t size) {
   chipSelect();
   setComandAndAddress(address, READ_ARRAY);
   SPI.transfer(0);
@@ -250,7 +258,18 @@ uint8_t RhioFlash::readStatusRegister(uint8_t bits) {
 void RhioFlash::writeStatusRegister(uint8_t bits, ComandFlash comandflash,
                                     uint8_t Status) {
   uint8_t value = 0;
+  if (comandflash == WRITE_STATUS1) {
+    uint8_t BPL = readStatusRegister(7);
+    uint8_t BP0 = readStatusRegister(2);
+    value = (BPL << 7);
+    BP0 = (BP0 << 2);
+    value |= BP0;
+  }
+  uint8_t mask = 1;
+  mask = mask << bits;
+  mask = ~mask;
   Status = (Status << bits);
+  value &= mask;
   value |= Status;
   chipSelect();
   SPI.transfer(comandflash);
