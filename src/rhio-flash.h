@@ -83,7 +83,7 @@ class RhioFlash {
    *                            Erase functions
    **************************************************************************/
 
-  void chipErase();
+  void erase();
   void blockErase4KB(uint32_t address);
   void blockErase32KB(uint32_t address);
   void pageErase(uint8_t page);
@@ -92,15 +92,15 @@ class RhioFlash {
    *                            Write functions
    **************************************************************************/
 
-  void writeByte(uint8_t value, uint32_t address);
-  void writePage(uint8_t *value, uint32_t address, uint8_t size);
+  void write(uint8_t value, uint32_t address);
+  void write(uint8_t *value, uint32_t address, uint8_t size);
 
   /***************************************************************************
    *                            Read functions
    **************************************************************************/
 
-  uint8_t readByte(uint32_t address);
-  void readArray(uint8_t *value, uint32_t address, uint8_t size);
+  uint8_t read(uint32_t address);
+  void read(uint8_t *value, uint32_t address, uint8_t size);
   // void readDualArray();
 
   /***************************************************************************
@@ -109,7 +109,7 @@ class RhioFlash {
 
   void resetOperation();
   void deepPowerDown();
-  void resumeFromDeepPowerDown();  // Resume from deep power down
+  void resumeFromDeepPowerDown();
   void ultraDeepPowerDown();
   void exitultraDeepPowerDown();
 
@@ -123,7 +123,7 @@ class RhioFlash {
     PAGE_ERASE = 0x81,
     BLOCK_ERASE_4KB = 0x20,
     BLOCK_ERASE_32KB = 0x52,
-    CHIP_ERASE = 0x60,
+    CHIP_ERASE = 0x62,
     PAGE_PROGRAM = 0x02,
     WRITE_ENABLE = 0x06,
     WRITE_DISABLE = 0x04,
@@ -145,8 +145,9 @@ class RhioFlash {
   void chipSelect();
   void chipUnselect();
   uint8_t readStatusRegister(uint8_t bits);
-  void writeStatusRegister(uint8_t bits, ComandFlash comandflash,
-                           uint8_t Status);
+  void writeStatusRegister(
+      uint8_t bits, ComandFlash comandflash,
+      uint8_t Status);  // Corregir funcion, problema por no hacer mascara
   void writeComand(ComandFlash comandflash);
   void setComandAndAddress(uint32_t address, ComandFlash comandflash);
 };
