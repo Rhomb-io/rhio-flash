@@ -38,6 +38,8 @@ void setup() {
   DEBUG.println(FLASH.getBlockProtectionLocked());
 
   FLASH.pageErase(0);
+  while (FLASH.getBusyStatus() == 1) {
+  }
 
   uint8_t array[8] = {};
   uint8_t array1[8] = {};
