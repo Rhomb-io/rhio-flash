@@ -13,8 +13,14 @@
 
 #include <rhio-flash.h>
 
-//*******Constructor*******
+#if defined(ARDUINO_SAMD_ZERO)
+SPIClass rhSPI(&sercom1, MISO, SCK, MOSI, SPI_PAD_0_SCK_1, SERCOM_RX_PAD_3);
+#define RH_SPI rhSPI
+#else
+#define RH_SPI SPI
+#endif
 
+//*******Constructor*******
 RhioFlash::RhioFlash(){};
 
 RhioFlash::RhioFlash(uint8_t slaveSelectPin) {
