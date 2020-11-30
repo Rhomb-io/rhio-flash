@@ -37,7 +37,6 @@ void RhioFlash::beginMemory() {
   pinMode(_slaveSelectPin, OUTPUT);
 #endif
 #if defined(ARDUINO_SAMD_ZERO)
-  SPIClass SPI(&sercom1, MISO, SCK, MOSI, SPI_PAD_0_SCK_1, SERCOM_RX_PAD_3);
   pinPeripheral(MOSI, PIO_SERCOM);  // Assign MOSI
   pinPeripheral(MISO, PIO_SERCOM);  // Assign MISO
   pinPeripheral(SCK, PIO_SERCOM);   // Assign SCK
