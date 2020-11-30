@@ -145,9 +145,8 @@ class RhioFlash {
   void chipSelect();
   void chipUnselect();
   uint8_t readStatusRegister(uint8_t bits);
-  void writeStatusRegister(
-      uint8_t bits, ComandFlash comandflash,
-      uint8_t Status);  // Corregir funcion, problema por no hacer mascara
+  void writeStatusRegister(uint8_t bits, ComandFlash comandflash,
+                           uint8_t Status);
   void writeComand(ComandFlash comandflash);
   void setComandAndAddress(uint32_t address, ComandFlash comandflash);
 };
