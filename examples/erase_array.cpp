@@ -56,7 +56,6 @@ void setup() {
   FLASH.read(array2, 0, 256);
 
   for (i = 0; i < 256; i++) {
-    array[i] = i;
     DEBUG.println(array2[i]);
     if (i == 255) {
       break;
