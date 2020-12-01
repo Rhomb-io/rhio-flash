@@ -164,6 +164,33 @@ void RhioFlash::pageErase(uint8_t page) {
   chipUnselect();
 }
 
+void RhioFlash::bytesErase(uint32_t address,
+                           uint16_t size) {  // Dentro de una misma pagina
+  uint8_t array[256] = {};
+  uint32_t real_address = address;
+  uint16_t pos;
+  uint8_t count, pag = 0;
+  read(array, real_address, size);
+  // borro bytes que quiero
+  if (address > 0 && address < 256) {
+    for (count = 0; count < size; count++) {
+      pos = count + address;
+      if (pos > 255) {
+        pos -= 256;
+      }
+      array[(pos)] = 0;
+    }
+  } else {
+    address -= 255;
+    pag += 1;
+  }
+  pageErase(pag);
+  while (getBusyStatus() == 1) {
+  }
+  // borrar la pagina que toque(minima unidad de borrado)
+  write(array, real_address, size);
+}
+
 //******Write functions******
 
 void RhioFlash::write(uint8_t value, uint32_t address) {

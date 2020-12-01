@@ -87,6 +87,7 @@ class RhioFlash {
   void blockErase4KB(uint32_t address);
   void blockErase32KB(uint32_t address);
   void pageErase(uint8_t page);
+  void bytesErase(uint32_t address, uint16_t size);
 
   /***************************************************************************
    *                            Write functions
