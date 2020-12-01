@@ -93,14 +93,14 @@ class RhioFlash {
    **************************************************************************/
 
   void write(uint8_t value, uint32_t address);
-  void write(uint8_t *value, uint32_t address, uint8_t size);
+  void write(uint8_t *value, uint32_t address, uint16_t size);
 
   /***************************************************************************
    *                            Read functions
    **************************************************************************/
 
   uint8_t read(uint32_t address);
-  void read(uint8_t *value, uint32_t address, uint8_t size);
+  void read(uint8_t *value, uint32_t address, uint16_t size);
   // void readDualArray();
 
   /***************************************************************************

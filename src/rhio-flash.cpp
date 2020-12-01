@@ -174,7 +174,7 @@ void RhioFlash::write(uint8_t value, uint32_t address) {
   chipUnselect();
 }
 
-void RhioFlash::write(uint8_t *value, uint32_t address, uint8_t size) {
+void RhioFlash::write(uint8_t *value, uint32_t address, uint16_t size) {
   writeEnable();
   chipSelect();
   setComandAndAddress(address, PAGE_PROGRAM);
@@ -196,7 +196,7 @@ uint8_t RhioFlash::read(uint32_t address) {
   return value;
 }
 
-void RhioFlash::read(uint8_t *value, uint32_t address, uint8_t size) {
+void RhioFlash::read(uint8_t *value, uint32_t address, uint16_t size) {
   chipSelect();
   setComandAndAddress(address, READ_ARRAY);
   RH_SPI.transfer(0);
