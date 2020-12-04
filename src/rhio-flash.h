@@ -55,8 +55,8 @@ class RhioFlash {
    *                             Security functions
    **************************************************************************/
 
-  void setOtpSecurity(uint8_t *value, uint32_t address, uint8_t size);
-  void readOtpSecurity(uint8_t *value, uint32_t address, uint8_t size);
+  void setOtpSecurity(uint8_t *value, uint32_t addressM, uint8_t size);
+  void readOtpSecurity(uint8_t *value, uint32_t addressM, uint8_t size);
 
   /***************************************************************************
    *                             Status registers
@@ -84,24 +84,24 @@ class RhioFlash {
    **************************************************************************/
 
   void erase();
-  void blockErase4KB(uint32_t address);
-  void blockErase32KB(uint32_t address);
+  void blockErase4KB(uint32_t addressM);
+  void blockErase32KB(uint32_t addressM);
   void pageErase(uint8_t page);
-  void bytesErase(uint32_t address, uint16_t size);
+  void bytesErase(uint32_t addressM, uint16_t size);
 
   /***************************************************************************
    *                            Write functions
    **************************************************************************/
 
-  void write(uint8_t value, uint32_t address);
-  void write(uint8_t *value, uint32_t address, uint16_t size);
+  void write(uint8_t value, uint32_t addressM);
+  void write(uint8_t *value, uint32_t addressM, uint16_t size);
 
   /***************************************************************************
    *                            Read functions
    **************************************************************************/
 
-  uint8_t read(uint32_t address);
-  void read(uint8_t *value, uint32_t address, uint16_t size);
+  uint8_t read(uint32_t addressM);
+  void read(uint8_t *value, uint32_t addressM, uint16_t size);
   // void readDualArray();
 
   /***************************************************************************
@@ -149,5 +149,5 @@ class RhioFlash {
   void writeStatusRegister(uint8_t bits, ComandFlash comandflash,
                            uint8_t Status);
   void writeComand(ComandFlash comandflash);
-  void setComandAndAddress(uint32_t address, ComandFlash comandflash);
+  void setComandAndAddress(uint32_t addressM, ComandFlash comandflash);
 };
