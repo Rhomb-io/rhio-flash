@@ -29,13 +29,7 @@ void setup() {
   DEBUG.println(jedecid4, HEX);
 
   FLASH.erase();
-
-  // While memory is busy, it is waiting
-  while (FLASH.getBusyStatus() == 1) {
-  }
-
   FLASH.write(0xE3, 0);
-
   DEBUG.print("Reading address 0: ");  // 11100011
   DEBUG.println(FLASH.read(0), BIN);
 }
