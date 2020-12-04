@@ -12,6 +12,7 @@ void setup() {
     ;
 
   DEBUG.println("Set");
+  DEBUG.println("");
   FLASH.beginMemory();
   uint32_t jedecid = FLASH.readManufacterAndDeviceID();
   uint8_t jedecid1, jedecid2, jedecid3, jedecid4;
@@ -28,43 +29,34 @@ void setup() {
   DEBUG.print("Extended: ");
   DEBUG.println(jedecid4, HEX);
 
-  FLASH.erase();
-  while (FLASH.getBusyStatus() == 1) {
-  }
+  FLASH.pageErase(0);
+  uint8_t array[256] = {};
+  uint8_t array1[256] = {};
 
+  DEBUG.println("Writing");
   DEBUG.println("");
-  DEBUG.println("Writing page ");
-  // Write an array of 256 bytes
-  uint8_t array[256] = {}, i, array2[256];
-  for (i = 0; i < 256; i++) {
-    array[i] = i;
-    DEBUG.println(array[i]);
-    if (i == 255) {
-      break;
-    }
-  }
-  DEBUG.println("");
-  DEBUG.println("First for finished");
-  DEBUG.println("");
-  delay(5000);
 
-  FLASH.write(array, 0, 256);
-  // Erase 20 bytes from 250 address
-  FLASH.bytesErase(250, 20);
-  DEBUG.println("");
-  DEBUG.println("Reading page ");
-  FLASH.read(array2, 0, 256);
-
-  for (i = 0; i < 256; i++) {
-    DEBUG.println(array2[i]);
-    if (i == 255) {
+  for (int k = 0; k < 256; k++) {
+    array[k] = k;
+    DEBUG.println(array[k]);
+    if (k == 255) {
       break;
     }
   }
 
+  FLASH.write(array, 256, 256);
+  FLASH.bytesErase(256, 20);
   DEBUG.println("");
-  DEBUG.println("Second for finished");
-  DEBUG.println("");
+  DEBUG.println("Reading bytes");
+
+  FLASH.read(array1, 256, 256);
+
+  for (int i = 0; i < 256; i++) {
+    DEBUG.println(array1[i]);
+    if (i == 255) {
+      break;
+    }
+  }
 }
 
 void loop() {
