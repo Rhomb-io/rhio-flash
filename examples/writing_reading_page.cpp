@@ -1,4 +1,4 @@
-#define DEBUG Serial
+#define DEBUG SerialUSB
 #include "rhio-flash.h"
 
 RhioFlash FLASH;
@@ -38,9 +38,6 @@ void setup() {
   DEBUG.println(FLASH.getBlockProtectionLocked());
 
   FLASH.pageErase(0);
-  while (FLASH.getBusyStatus() == 1) {
-  }
-
   uint8_t array[8] = {};
   uint8_t array1[8] = {};
   uint8_t variable = 0;
@@ -54,8 +51,8 @@ void setup() {
   for (int k = 0; k < 8; k++) {
     variable = variable + 2 * 2;  // 4, 8, 12, 16 20, 24...
     array[k] = {variable};
-    Serial.println("Writing generated");
-    Serial.println(array[k]);
+    DEBUG.println("Writing generated");
+    DEBUG.println(array[k]);
   }
   FLASH.write(array, 0, 8);
 
