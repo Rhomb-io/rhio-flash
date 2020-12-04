@@ -55,11 +55,7 @@ void setup() {
   uint8_t* d = (uint8_t*)&data;
   int dataLen = sizeof data;
 
-  while (FLASH.getBusyStatus() == 1) {
-  }
-
   FLASH.write(d, 0, dataLen);  // Write a pointer to struct memory
-
   for (auto i = 0; i < dataLen; i++) {
     DEBUG.println(d[i]);
   }
