@@ -78,21 +78,22 @@ uint16_t RhioFlash::readDeviceID() {
 
 //******Security functions******
 
-void RhioFlash::setOtpSecurity(uint8_t *value, uint32_t address, uint8_t size) {
+void RhioFlash::setOtpSecurity(uint8_t *value, uint32_t addressM,
+                               uint8_t size) {
   // Se necesita habilitar la escritura
   writeEnable();
   chipSelect();
-  setComandAndAddress(address, PROGRAM_OTP);
+  setComandAndAddress(addressM, PROGRAM_OTP);
   for (auto i = 0; i < size; i++) {
     RH_SPI.transfer(value[i]);
   }
   chipUnselect();
 }
 
-void RhioFlash::readOtpSecurity(uint8_t *value, uint32_t address,
+void RhioFlash::readOtpSecurity(uint8_t *value, uint32_t addressM,
                                 uint8_t size) {
   chipSelect();
-  setComandAndAddress(address, READ_OTP);
+  setComandAndAddress(addressM, READ_OTP);
   RH_SPI.transfer(0);
   RH_SPI.transfer(0);
   for (auto i = 0; i < size; i++) {
@@ -137,20 +138,26 @@ void RhioFlash::writeDisable() { writeComand(WRITE_DISABLE); }
 void RhioFlash::erase() {
   writeEnable();
   writeComand(CHIP_ERASE);
+  while (getBusyStatus() == 1) {
+  }
 }
 
-void RhioFlash::blockErase4KB(uint32_t address) {
+void RhioFlash::blockErase4KB(uint32_t addressM) {
   writeEnable();
   chipSelect();
-  setComandAndAddress(address, BLOCK_ERASE_4KB);
+  setComandAndAddress(addressM, BLOCK_ERASE_4KB);
   chipUnselect();
+  while (getBusyStatus() == 1) {
+  }
 }
 
-void RhioFlash::blockErase32KB(uint32_t address) {
+void RhioFlash::blockErase32KB(uint32_t addressM) {
   writeEnable();
   chipSelect();
-  setComandAndAddress(address, BLOCK_ERASE_32KB);
+  setComandAndAddress(addressM, BLOCK_ERASE_32KB);
   chipUnselect();
+  while (getBusyStatus() == 1) {
+  }
 }
 
 void RhioFlash::pageErase(uint8_t page) {
@@ -162,75 +169,98 @@ void RhioFlash::pageErase(uint8_t page) {
   RH_SPI.transfer(page);
   RH_SPI.transfer(0);
   chipUnselect();
-}
-
-void RhioFlash::bytesErase(uint32_t address,
-                           uint16_t size) {  // Dentro de una misma pagina
-  uint8_t array[256] = {};
-  uint32_t real_address = address;
-  uint16_t pos;
-  uint8_t count, pag = 0;
-  read(array, real_address, size);
-  // borro bytes que quiero
-  if (address > 0 && address < 256) {
-    for (count = 0; count < size; count++) {
-      pos = count + address;
-      if (pos > 255) {
-        pos -= 256;
-      }
-      array[(pos)] = 0;
-    }
-  } else {
-    address -= 255;
-    pag += 1;
-  }
-  pageErase(pag);
   while (getBusyStatus() == 1) {
   }
-  // borrar la pagina que toque(minima unidad de borrado)
-  write(array, real_address, size);
+}
+
+void RhioFlash::bytesErase(uint32_t addressM, uint16_t size) {
+  uint8_t pag = 0, discountSize = 0, realSize = 0;
+  uint32_t addresRead1, real_address;
+  real_address = addressM;
+  realSize = size;
+  while (addressM >= 256) {
+    addressM -= 256;
+    pag += 1;
+  }
+  if ((addressM + (realSize - 1)) >= 256) {
+    uint8_t array3[(-realSize + 256)] = {};
+    while ((addressM + (size - 1)) >= 256) {
+      size -= 1;
+      discountSize += 1;
+    }
+    addresRead1 = discountSize + (pag * 256);
+    read(array3, addresRead1, (-realSize + 256));
+    pageErase(pag);
+    write(array3, addresRead1, (-realSize + 256));
+  } else if (addressM == 0) {
+    uint8_t array4[(-realSize + 256)] = {};
+    uint32_t addresRead3;
+    addresRead3 = real_address + realSize;
+    read(array4, addresRead3, (-realSize + 256));
+    pageErase(pag);
+    write(array4, addresRead3, (-realSize + 256));
+  } else {
+    uint8_t array1[(-size + 256 - addressM)] = {};
+    uint8_t array2[(256 - (256 - addressM))] = {};
+    uint32_t addresRead2;
+    addresRead1 = real_address + size;
+    read(array1, addresRead1, (-size + 256 - addressM));
+    addresRead2 = pag * 256;
+    read(array2, addresRead2, (256 - (256 - addressM)));
+    pageErase(pag);
+    write(array1, addresRead1, (-size + 256 - addressM));
+    write(array2, addresRead2, (256 - (256 - addressM)));
+  }
 }
 
 //******Write functions******
 
-void RhioFlash::write(uint8_t value, uint32_t address) {
+void RhioFlash::write(uint8_t value, uint32_t addressM) {
   writeEnable();
   chipSelect();
-  setComandAndAddress(address, PAGE_PROGRAM);
+  setComandAndAddress(addressM, PAGE_PROGRAM);
   RH_SPI.transfer(value);
   chipUnselect();
+  while (getBusyStatus() == 1) {
+  }
 }
 
-void RhioFlash::write(uint8_t *value, uint32_t address, uint16_t size) {
+void RhioFlash::write(uint8_t *value, uint32_t addressM, uint16_t size) {
   writeEnable();
   chipSelect();
-  setComandAndAddress(address, PAGE_PROGRAM);
+  setComandAndAddress(addressM, PAGE_PROGRAM);
   for (auto i = 0; i < size; i++) {
     RH_SPI.transfer(value[i]);
   }
   chipUnselect();
+  while (getBusyStatus() == 1) {
+  }
 }
 
 //******Read functions******
 
-uint8_t RhioFlash::read(uint32_t address) {
+uint8_t RhioFlash::read(uint32_t addressM) {
   uint8_t value;
   chipSelect();
-  setComandAndAddress(address, READ_ARRAY);
+  setComandAndAddress(addressM, READ_ARRAY);
   RH_SPI.transfer(0);
   value = RH_SPI.transfer(0);
   chipUnselect();
+  while (getBusyStatus() == 1) {
+  }
   return value;
 }
 
-void RhioFlash::read(uint8_t *value, uint32_t address, uint16_t size) {
+void RhioFlash::read(uint8_t *value, uint32_t addressM, uint16_t size) {
   chipSelect();
-  setComandAndAddress(address, READ_ARRAY);
+  setComandAndAddress(addressM, READ_ARRAY);
   RH_SPI.transfer(0);
   for (auto i = 0; i < size; i++) {
     value[i] = RH_SPI.transfer(0);
   }
   chipUnselect();
+  while (getBusyStatus() == 1) {
+  }
 }
 
 //*********************Other functions*********************//
@@ -315,9 +345,12 @@ void RhioFlash::writeComand(ComandFlash comandflash) {
   chipUnselect();
 }
 
-void RhioFlash::setComandAndAddress(uint32_t address, ComandFlash comandflash) {
+void RhioFlash::setComandAndAddress(uint32_t addressM,
+                                    ComandFlash comandflash) {
   RH_SPI.transfer(comandflash);
-  RH_SPI.transfer(address >> 16);  // Menos significativo primero
-  RH_SPI.transfer(address >> 8);
-  RH_SPI.transfer(address);
+  RH_SPI.transfer(addressM >> 16);  // Menos significativo primero
+  RH_SPI.transfer(addressM >> 8);
+  RH_SPI.transfer(addressM);
 }
+
+
