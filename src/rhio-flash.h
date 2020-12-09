@@ -48,7 +48,7 @@ class RhioFlash {
    *                           Device ID and manufacter ID
    **************************************************************************/
 
-  uint32_t readManufacterAndDeviceID();
+  uint32_t readManufacturerAndDeviceID();
   uint16_t readDeviceID();
 
   /***************************************************************************

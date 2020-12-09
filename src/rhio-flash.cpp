@@ -48,7 +48,7 @@ void RhioFlash::beginMemory() {
 
 //******Device ID and manufacter ID******
 
-uint32_t RhioFlash::readManufacterAndDeviceID() {  // Devolver uint32
+uint32_t RhioFlash::readManufacturerAndDeviceID() {  // Devolver uint32
   uint32_t jedecid;
   ComandFlash comandflash = READ_ALL_ID;
   chipSelect();
@@ -352,5 +352,3 @@ void RhioFlash::setComandAndAddress(uint32_t addressM,
   RH_SPI.transfer(addressM >> 8);
   RH_SPI.transfer(addressM);
 }
-
-
