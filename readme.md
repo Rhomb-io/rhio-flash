@@ -24,7 +24,7 @@ This is a portable library based on Arduino to work with the AT25DF512C SPI Seri
   * read(address)
   * read(*value, address, size)
 
-There are two types of write/read functions depending on that type of value introduce in the function (uint8_t or array). If it introduces an array, is nessecary use a pointer to the array memory and put the size.
+There are two types of write/read functions depending on what type of value is introduced in the function (uint8_t or array). If it introduces an array, it is necessary to use a pointer to the memory array and set the size.
 
 ## License
 

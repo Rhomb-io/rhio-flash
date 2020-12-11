@@ -36,7 +36,7 @@ class RhioFlash {
    **************************************************************************/
 
   RhioFlash();
-  RhioFlash(uint8_t slaveSelectPin);  // Only if you don't use halley
+  RhioFlash(uint8_t slaveSelectPin);  // Only if you don't use the Halley baord
 
   /***************************************************************************
    *                               Initialization
