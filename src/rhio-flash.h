@@ -3,7 +3,7 @@
  * Rhomb.io AT25DF512C library
  *
  * @author Jose Francisco Martí Martín
- * @version 0.0.1
+ * @version 0.0.2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,13 +15,18 @@
 #include <SPI.h>
 
 #define Rhomb_io
-#define Halley
+
+#define Halley 1
+#define MEMORY_DUINO_ZERO 2
+#define NORMAL 3
+
+#define MODE MEMORY_DUINO_ZERO
 
 #ifdef Rhomb_io
 #include "rhio-pinmap.h"
 #endif
 
-#ifdef Halley
+#if MODE == Halley
 #include "rhio-ioexpander.h"
 #endif
 
@@ -115,7 +120,7 @@ class RhioFlash {
   void exitultraDeepPowerDown();
 
  private:
-#ifdef Halley
+#if MODE == Halley
   RhioIOExpander ioex;
 #endif
   typedef enum _ComandFlash {

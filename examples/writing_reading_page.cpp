@@ -14,7 +14,7 @@ void setup() {
   DEBUG.println("Set");
   DEBUG.println("");
   FLASH.beginMemory();
-  uint32_t jedecid = FLASH.readManufacterAndDeviceID();
+  uint32_t jedecid = FLASH.readManufacturerAndDeviceID();
   uint8_t jedecid1, jedecid2, jedecid3, jedecid4;
   jedecid1 = jedecid >> 24;
   jedecid2 = jedecid >> 16;

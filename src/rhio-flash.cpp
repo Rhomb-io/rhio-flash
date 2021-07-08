@@ -2,7 +2,7 @@
  * Rhomb.io AT25DF512C library
  *
  * @author Jose Francisco Martí Martín
- * @version 0.0.1
+ * @version 0.0.2
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,17 @@ RhioFlash::RhioFlash(uint8_t slaveSelectPin) {
 //******Initialization******
 
 void RhioFlash::beginMemory() {
-#ifdef Halley
+#if MODE == Halley
   ioex.begin();
   ioex.setupIOEXHalley();
-#else
+#elif MODE == MEMORY_DUINO_ZERO
+  pinMode(MUX_SW, OUTPUT);
+  digitalWrite(MUX_SW, LOW);
+  pinMode(MEM_CS, OUTPUT);
+#elif MODE == NORMAL
   pinMode(_slaveSelectPin, OUTPUT);
 #endif
+
 #if defined(ARDUINO_SAMD_ZERO)
   pinPeripheral(MOSI, PIO_SERCOM);  // Assign MOSI
   pinPeripheral(MISO, PIO_SERCOM);  // Assign MISO
@@ -237,6 +242,7 @@ void RhioFlash::write(uint8_t *value, uint32_t addressM, uint16_t size) {
   }
 }
 
+
 //******Read functions******
 
 uint8_t RhioFlash::read(uint32_t addressM) {
@@ -290,17 +296,21 @@ void RhioFlash::exitultraDeepPowerDown() {
 //*************************UTILITY*************************//
 
 void RhioFlash::chipSelect() {
-#ifdef Halley
+#if MODE == Halley
   ioex.enableSPIMemory();
-#else
+#elif MODE == MEMORY_DUINO_ZERO
+  digitalWrite(MEM_CS, LOW);
+#elif MODE == NORMAL
   digitalWrite(_slaveSelectPin, LOW);
 #endif
 }
 
 void RhioFlash::chipUnselect() {
-#ifdef Halley
+#if MODE == Halley
   ioex.disableSPIMemory();
-#else
+#elif MODE == MEMORY_DUINO_ZERO
+  digitalWrite(MEM_CS, HIGH);
+#elif MODE == NORMAL
   digitalWrite(_slaveSelectPin, HIGH);
 #endif
   RH_SPI.endTransaction();
