@@ -20,11 +20,20 @@ SPIClass rhSPI(&sercom1, MISO, SCK, MOSI, SPI_PAD_0_SCK_1, SERCOM_RX_PAD_3);
 #define RH_SPI SPI
 #endif
 
+void (*idle)();
+
 //*******Constructor*******
-RhioFlash::RhioFlash(){};
+RhioFlash::RhioFlash(){
+  idle = []() {};
+};
+
+RhioFlash::RhioFlash(void (*callback)()){
+  idle = callback;
+};
 
 RhioFlash::RhioFlash(uint8_t slaveSelectPin) {
   _slaveSelectPin = slaveSelectPin;
+  idle = []() {};
 }
 
 //******Initialization******
@@ -91,6 +100,7 @@ void RhioFlash::setOtpSecurity(uint8_t *value, uint32_t addressM,
   setComandAndAddress(addressM, PROGRAM_OTP);
   for (auto i = 0; i < size; i++) {
     RH_SPI.transfer(value[i]);
+    idle();
   }
   chipUnselect();
 }
@@ -103,6 +113,7 @@ void RhioFlash::readOtpSecurity(uint8_t *value, uint32_t addressM,
   RH_SPI.transfer(0);
   for (auto i = 0; i < size; i++) {
     value[i] = RH_SPI.transfer(0);
+    idle();
   }
   chipUnselect();
 }
@@ -144,6 +155,7 @@ void RhioFlash::erase() {
   writeEnable();
   writeComand(CHIP_ERASE);
   while (getBusyStatus() == 1) {
+    idle();
   }
 }
 
@@ -153,6 +165,7 @@ void RhioFlash::blockErase4KB(uint32_t addressM) {
   setComandAndAddress(addressM, BLOCK_ERASE_4KB);
   chipUnselect();
   while (getBusyStatus() == 1) {
+    idle();
   }
 }
 
@@ -162,6 +175,7 @@ void RhioFlash::blockErase32KB(uint32_t addressM) {
   setComandAndAddress(addressM, BLOCK_ERASE_32KB);
   chipUnselect();
   while (getBusyStatus() == 1) {
+    idle();
   }
 }
 
@@ -175,6 +189,7 @@ void RhioFlash::pageErase(uint8_t page) {
   RH_SPI.transfer(0);
   chipUnselect();
   while (getBusyStatus() == 1) {
+    idle();
   }
 }
 
@@ -184,12 +199,14 @@ void RhioFlash::bytesErase(uint32_t addressM, uint16_t size) {
   real_address = addressM;
   realSize = size;
   while (addressM >= 256) {
+    idle();
     addressM -= 256;
     pag += 1;
   }
   if ((addressM + (realSize - 1)) >= 256) {
     uint8_t array3[(-realSize + 256)] = {};
     while ((addressM + (size - 1)) >= 256) {
+      idle();
       size -= 1;
       discountSize += 1;
     }
@@ -227,6 +244,7 @@ void RhioFlash::write(uint8_t value, uint32_t addressM) {
   RH_SPI.transfer(value);
   chipUnselect();
   while (getBusyStatus() == 1) {
+    idle();
   }
 }
 
@@ -235,10 +253,12 @@ void RhioFlash::write(uint8_t *value, uint32_t addressM, uint16_t size) {
   chipSelect();
   setComandAndAddress(addressM, PAGE_PROGRAM);
   for (auto i = 0; i < size; i++) {
+    idle();
     RH_SPI.transfer(value[i]);
   }
   chipUnselect();
   while (getBusyStatus() == 1) {
+    idle();
   }
 }
 
@@ -253,6 +273,7 @@ uint8_t RhioFlash::read(uint32_t addressM) {
   value = RH_SPI.transfer(0);
   chipUnselect();
   while (getBusyStatus() == 1) {
+    idle();
   }
   return value;
 }
@@ -262,10 +283,12 @@ void RhioFlash::read(uint8_t *value, uint32_t addressM, uint16_t size) {
   setComandAndAddress(addressM, READ_ARRAY);
   RH_SPI.transfer(0);
   for (auto i = 0; i < size; i++) {
+    idle();
     value[i] = RH_SPI.transfer(0);
   }
   chipUnselect();
   while (getBusyStatus() == 1) {
+    idle();
   }
 }
 
@@ -292,6 +315,8 @@ void RhioFlash::exitultraDeepPowerDown() {
   RH_SPI.transfer(0);
   chipUnselect();
 }
+
+void RhioFlash::setIdle(void (*callback)()) { idle = callback; }
 
 //*************************UTILITY*************************//
 

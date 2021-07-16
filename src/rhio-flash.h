@@ -39,8 +39,9 @@ class RhioFlash {
   /***************************************************************************
    *                                 Constructor
    **************************************************************************/
-
+  
   RhioFlash();
+  RhioFlash(void (*callback)());
   RhioFlash(uint8_t slaveSelectPin);  // Only if you don't use halley
 
   /***************************************************************************
@@ -118,6 +119,7 @@ class RhioFlash {
   void resumeFromDeepPowerDown();
   void ultraDeepPowerDown();
   void exitultraDeepPowerDown();
+  void setIdle(void (*callback)());
 
  private:
 #if MODE == Halley
